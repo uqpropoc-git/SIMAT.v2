@@ -196,14 +196,15 @@
 
         </main>
 
-        <!-- FOOTER -->
-        <footer class="p-3 text-center border-t border-slate-200 text-[10px] text-slate-400">
-            &copy; <span id="currentYear"></span> SIMAT App. All rights reserved.
+        <!-- Footer -->
+        <footer class="bg-white border-t border-slate-200 py-3 px-4 text-center text-xs text-slate-500 mt-auto shadow-inner">
+            <p class="font-medium">Created by <span class="font-bold text-sky-600">UQ</span></p>
+            <p class="text-[11px] text-slate-400 mt-0.5">&copy; <span id="currentYear"></span> PT Multisarana Avindo. All rights reserved.</p>
         </footer>
     </div>
 
     <!-- PEMANGGILAN LIBRARY LUCIDE -->
-    <script src="./lucide.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
 
     <!-- SCRIPT LOGIKA APLIKASI -->
     <script>
@@ -356,18 +357,24 @@
 
         // --- CALCULATIONS ---
         function calculateCalculations() {
-            const p1 = parseFloat(document.getElementById('p1').value) || 0;
-            const p2 = parseFloat(document.getElementById('p2').value) || 0;
-            const p3 = parseFloat(document.getElementById('p3').value) || 0;
+            const valP1 = document.getElementById('p1').value;
+            const valP2 = document.getElementById('p2').value;
+            const valP3 = document.getElementById('p3').value;
+
+            const p1 = parseFloat(valP1);
+            const p2 = parseFloat(valP2);
+            const p3 = parseFloat(valP3);
             const tinggiStick = parseFloat(document.getElementById('tinggiStick').value) || 0;
 
+            let sum = 0;
             let count = 0;
-            if (document.getElementById('p1').value !== "") count++;
-            if (document.getElementById('p2').value !== "") count++;
-            if (document.getElementById('p3').value !== "") count++;
 
-            const avg = count > 0 ? (p1 + p2 + p3) / count : 0;
-            const totalMAT = avg - tinggiStick;
+            if (!isNaN(p1)) { sum += p1; count++; }
+            if (!isNaN(p2)) { sum += p2; count++; }
+            if (!isNaN(p3)) { sum += p3; count++; }
+
+            const avg = count > 0 ? sum / count : 0;
+            const totalMAT = tinggiStick - avg;
 
             document.getElementById('avgDisplay').textContent = `${avg.toFixed(2)} m`;
             document.getElementById('totalMatDisplay').textContent = `${totalMAT.toFixed(2)} m`;
@@ -455,6 +462,22 @@
             event.preventDefault();
             const selectedKondisiFisik = Array.from(document.querySelectorAll('input[name="kondisiFisik"]:checked')).map(cb => cb.value);
 
+            const valP1 = document.getElementById('p1').value;
+            const valP2 = document.getElementById('p2').value;
+            const valP3 = document.getElementById('p3').value;
+            const p1 = parseFloat(valP1);
+            const p2 = parseFloat(valP2);
+            const p3 = parseFloat(valP3);
+            const tinggiStick = parseFloat(document.getElementById('tinggiStick').value) || 0;
+
+            let sum = 0, count = 0;
+            if (!isNaN(p1)) { sum += p1; count++; }
+            if (!isNaN(p2)) { sum += p2; count++; }
+            if (!isNaN(p3)) { sum += p3; count++; }
+
+            const avgMAT = count > 0 ? (sum / count).toFixed(2) : "0.00";
+            const totalMAT = (tinggiStick - (count > 0 ? sum / count : 0)).toFixed(2);
+
             const payload = {
                 id: 'MAT-' + Date.now(),
                 timestamp: new Date().toISOString(),
@@ -470,6 +493,8 @@
                 p1: document.getElementById('p1').value,
                 p2: document.getElementById('p2').value,
                 p3: document.getElementById('p3').value,
+                avgMAT: avgMAT,
+                totalMAT: totalMAT,
                 photos: compressedPhotos
             };
 
@@ -514,6 +539,7 @@
             }
         }
 
+        // --- SINKRONISASI DATA OFFLINE ---
         async function syncOfflineData() {
             if (!navigator.onLine) return;
             const queue = await getOfflineQueue();
@@ -533,8 +559,8 @@
                     
                     if (res.success) {
                         successCount++;
-                        const tx = db.transaction("queue", "readwrite");
-                        tx.objectStore("queue").delete(item.id);
+                        const deleteTx = db.transaction("queue", "readwrite");
+                        deleteTx.objectStore("queue").delete(item.id);
                     }
                 } catch (e) {
                     console.error("Gagal sync item ID:", item.id, e);
