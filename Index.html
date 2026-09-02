@@ -122,12 +122,12 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Kondisi Fisik Sumur</label>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Kondisi Fisik Air</label>
                         <div class="flex flex-wrap gap-3 text-xs pt-1">
-                            <label class="flex items-center gap-1"><input type="checkbox" name="kondisiFisik" value="Baik" checked> Baik</label>
-                            <label class="flex items-center gap-1"><input type="checkbox" name="kondisiFisik" value="Terkunci"> Terkunci</label>
-                            <label class="flex items-center gap-1"><input type="checkbox" name="kondisiFisik" value="Rusak"> Rusak</label>
-                            <label class="flex items-center gap-1"><input type="checkbox" name="kondisiFisik" value="Tersumbat"> Tersumbat</label>
+                            <label class="flex items-center gap-1"><input type="checkbox" name="kondisiFisik" value="Jernih" checked> Jernih</label>
+                            <label class="flex items-center gap-1"><input type="checkbox" name="kondisiFisik" value="Keruh"> Keruh</label>
+                            <label class="flex items-center gap-1"><input type="checkbox" name="kondisiFisik" value="Berbau"> Berbau</label>
+                            <label class="flex items-center gap-1"><input type="checkbox" name="kondisiFisik" value="Berwarna"> Berwarna</label>
                         </div>
                     </div>
 
@@ -374,7 +374,7 @@
             if (!isNaN(p3)) { sum += p3; count++; }
 
             const avg = count > 0 ? sum / count : 0;
-            const totalMAT = tinggiStick - avg;
+            const totalMAT = avg > 0 ? avg - tinggiStick : 0;
 
             document.getElementById('avgDisplay').textContent = `${avg.toFixed(2)} m`;
             document.getElementById('totalMatDisplay').textContent = `${totalMAT.toFixed(2)} m`;
@@ -476,7 +476,8 @@
             if (!isNaN(p3)) { sum += p3; count++; }
 
             const avgMAT = count > 0 ? (sum / count).toFixed(2) : "0.00";
-            const totalMAT = (tinggiStick - (count > 0 ? sum / count : 0)).toFixed(2);
+            const avgVal = count > 0 ? sum / count : 0;
+            const totalMAT = avgVal > 0 ? (avgVal - tinggiStick).toFixed(2) : "0.00";
 
             const payload = {
                 id: 'MAT-' + Date.now(),
